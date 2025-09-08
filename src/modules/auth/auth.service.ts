@@ -1,4 +1,3 @@
-import {InjectRepository} from '@nestjs/typeorm';
 import {Injectable, NotAcceptableException} from '@nestjs/common';
 import {User} from '../user/user.entity';
 import {AddUserDto} from "../user/dtos/user-add.dto";
@@ -15,6 +14,11 @@ export class AuthService {
     ) {
     }
 
+    /**
+     * Sign-up new user
+     * @param userDto {AddUserDto}
+     * @returns {Boolean}
+     */
     async signup(userDto: AddUserDto): Promise<boolean> {
         const user: User | null = await this.userService.getUserByUsername(userDto?.username);
         if (user) {
@@ -27,6 +31,11 @@ export class AuthService {
         return true
     }
 
+    /**
+     * Sign-in user
+     * @param userDto {AddUserDto}
+     * @returns {String} JWT Token
+     */
     async signin(userDto: AddUserDto): Promise<string> {
         const user = await this.userService.getUserByUsername(userDto.username);
         if (!user || !await compare(userDto.password, user.password)) {

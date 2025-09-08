@@ -13,6 +13,7 @@ export class UserService {
     /**
      * Add new user
      * @param dto {AddUserDto}
+     * @returns {Boolean}
      */
     async addUser(dto: AddUserDto): Promise<boolean> {
         let user = await this.getUserByUsername(dto.username);
@@ -30,6 +31,7 @@ export class UserService {
     /**
      * Get user by its username
      * @param username
+     * @returns {User | null}
      */
     async getUserByUsername(username: string): Promise<User | null> {
         return await this.userRepository.findOne({where: {username}});
