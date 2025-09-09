@@ -9,7 +9,8 @@ import { Request } from 'express';
 
 interface JwtPayload {
   id: string;
-  isAdmin: boolean;
+  username: string;
+  passkey: string;
 }
 
 /**
