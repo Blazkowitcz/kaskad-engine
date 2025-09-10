@@ -13,5 +13,8 @@ export class Subcategory {
   category: Category;
 
   @Column({ type: String })
+  slug: string;
+
+  @Column({ type: String })
   icon: string;
 }

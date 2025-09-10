@@ -9,5 +9,8 @@ export class Category {
   name: string;
 
   @Column({ type: String })
+  slug: string;
+
+  @Column({ type: String })
   icon: string;
 }
