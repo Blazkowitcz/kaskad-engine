@@ -8,6 +8,9 @@ export class Torrent {
   id: string;
 
   @Column({ type: String, unique: true })
+  name: string;
+
+  @Column({ type: String, unique: true })
   slug: string;
 
   @Column({ type: String })

@@ -1,10 +1,6 @@
-import {Req} from '@nestjs/common';
+import { Request } from 'express';
+//import { ParseTorrent } from 'parse-torrent';
 
 export class AnnouncerService {
-    constructor() {
-    }
-
-    async announce(@Req() request, passkey: string) {
-
-    }
+  constructor() {}
 }

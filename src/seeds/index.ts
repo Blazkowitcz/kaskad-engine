@@ -1,7 +1,8 @@
 import { DataSource } from 'typeorm';
 import { seedCategories } from './category.seed';
+import { seedSubcategories } from './subcategories.seed';
 
 export const runSeeds = async (dataSource: DataSource) => {
   await seedCategories(dataSource);
-  console.log('All seeds executed!');
+  await seedSubcategories(dataSource);
 };
