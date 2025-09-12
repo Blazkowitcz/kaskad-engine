@@ -7,6 +7,7 @@ import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CategoryModule } from './modules/category/category.module';
 import { SubcategoryModule } from './modules/subcategory/subcategory.module';
+import { TorrentModule } from './modules/torrent/torrent.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { SubcategoryModule } from './modules/subcategory/subcategory.module';
     AuthModule,
     CategoryModule,
     SubcategoryModule,
+    TorrentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,6 +1,6 @@
 import { IsString } from 'class-validator';
 
-export class AddCategoryDto {
+export class AddTorrentDto {
   @IsString()
   name: string;
 
