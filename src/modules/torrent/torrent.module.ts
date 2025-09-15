@@ -3,9 +3,11 @@ import { TorrentController } from './torrent.controller';
 import { Torrent } from './torrent.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TorrentService } from './torrent.service';
+import { AuthModule } from '../auth/auth.module';
+import { SubcategoryModule } from '../subcategory/subcategory.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Torrent])],
+  imports: [TypeOrmModule.forFeature([Torrent]), AuthModule, SubcategoryModule],
   controllers: [TorrentController],
   providers: [TorrentService],
 })
