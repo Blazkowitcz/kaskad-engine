@@ -31,9 +31,16 @@ export class UserService {
   /**
    * Get user by its username
    * @param username
+   * @param isPasswordNeeded {Boolean}
    * @returns {User | null}
    */
-  async getUserByUsername(username: string): Promise<User | null> {
-    return await this.userRepository.findOne({ where: { username } });
+  async getUserByUsername(
+    username: string,
+    isPasswordNeeded: boolean = false,
+  ): Promise<User | null> {
+    return await this.userRepository.findOne({
+      where: { username },
+      select: { password: isPasswordNeeded },
+    });
   }
 }
