@@ -1,7 +1,7 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { User } from './user.entity';
+import { User, UserFields } from './user.entity';
 import { AddUserDto } from './dtos/user-add.dto';
 
 @Injectable()
@@ -31,16 +31,24 @@ export class UserService {
   /**
    * Get user by its username
    * @param username
-   * @param isPasswordNeeded {Boolean}
+   * @param fields
    * @returns {User | null}
    */
   async getUserByUsername(
     username: string,
-    isPasswordNeeded: boolean = false,
+    fields: UserFields = {},
   ): Promise<User | null> {
     return await this.userRepository.findOne({
       where: { username },
-      select: { password: isPasswordNeeded },
+      select: { id: true, username: true, ...fields },
     });
+  }
+
+  /**
+   * Get user by its passkey
+   * @param passkey {String}
+   */
+  async getUserByPasskey(passkey: string) {
+    return await this.userRepository.findOne({ where: { passkey } });
   }
 }

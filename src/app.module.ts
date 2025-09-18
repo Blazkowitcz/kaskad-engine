@@ -8,6 +8,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { CategoryModule } from './modules/category/category.module';
 import { SubcategoryModule } from './modules/subcategory/subcategory.module';
 import { TorrentModule } from './modules/torrent/torrent.module';
+import { PeerModule } from './modules/peer/peer.module';
+import { AnnouncerModule } from './modules/announcer/announcer.module';
 
 @Module({
   imports: [
@@ -35,6 +37,8 @@ import { TorrentModule } from './modules/torrent/torrent.module';
     CategoryModule,
     SubcategoryModule,
     TorrentModule,
+    PeerModule,
+    AnnouncerModule,
   ],
   controllers: [AppController],
   providers: [AppService],

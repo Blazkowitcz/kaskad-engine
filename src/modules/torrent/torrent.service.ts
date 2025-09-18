@@ -1,5 +1,9 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { Injectable, NotAcceptableException } from '@nestjs/common';
+import {
+  Injectable,
+  NotAcceptableException,
+  StreamableFile,
+} from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Torrent } from './torrent.entity';
 import { AddTorrentDto } from './dtos/torrent-add.dto';
@@ -7,6 +11,11 @@ import ParseTorrentFile from 'parse-torrent-file';
 import { kebabCase } from 'lodash';
 import { UserRequest } from '../user/user.entity';
 import { SubcategoryService } from '../subcategory/subcategory.service';
+import { writeFileSync } from 'fs';
+import { randomBytes } from 'crypto';
+import { readFileSync } from 'fs';
+import { Bencode } from 'bencode-ts';
+import * as process from 'node:process';
 
 @Injectable()
 export class TorrentService {
@@ -33,17 +42,17 @@ export class TorrentService {
   ): Promise<Torrent> {
     const subcategory =
       await this.subcategoryService.getSubcategoryById(subcategoryId);
-    if (!subcategory) throw new Error('Subcategory not found'); // ou NotFoundException
+    if (!subcategory) throw new Error('Subcategory not found');
 
     const { infoHash } = ParseTorrentFile(file.buffer);
 
-    const torrent = await this.torrentRepository.findOne({
+    let torrent = await this.torrentRepository.findOne({
       where: { hash: infoHash },
     });
 
     if (torrent) throw new NotAcceptableException('Torrent already exists');
-
-    return this.torrentRepository.save(
+    const filename = `${randomBytes(16).toString('hex')}.torrent`;
+    torrent = await this.torrentRepository.save(
       this.torrentRepository.create({
         name,
         description,
@@ -51,7 +60,7 @@ export class TorrentService {
         subcategory,
         hash: infoHash,
         slug: kebabCase(name),
-        filename: file.originalname,
+        filename: filename,
         validated: false,
         blocked: false,
         completed: 0,
@@ -61,13 +70,82 @@ export class TorrentService {
         user,
       }),
     );
+    writeFileSync(`${process.env.FILE_LOCATION}${filename}`, file.buffer);
+    return torrent;
   }
 
-  async getLastTorrents() {
+  /**
+   * Get 20 last torrents
+   * @returns {Torrent[]}
+   */
+  async getLastTorrents(): Promise<Torrent[]> {
     return await this.torrentRepository.find({
       order: { createdAt: 'DESC' },
-      take: 50,
+      take: 20,
       relations: ['subcategory', 'user'],
+      select: [
+        'id',
+        'name',
+        'slug',
+        'createdAt',
+        'size',
+        'completed',
+        'subcategory',
+      ],
+    });
+  }
+
+  /**
+   * Get 20 best torrents
+   * @returns {Torrent[]}
+   */
+  async getBestTorrents(): Promise<Torrent[]> {
+    return await this.torrentRepository.find({
+      order: { completed: 'DESC' },
+      take: 20,
+      relations: ['subcategory', 'user'],
+      select: [
+        'id',
+        'name',
+        'slug',
+        'createdAt',
+        'size',
+        'completed',
+        'subcategory',
+      ],
+    });
+  }
+
+  /**
+   * Download torrent
+   * @param torrentSlug {String}
+   * @param userRequest
+   * @returns {StreamableFile}
+   */
+  async downloadTorrent(
+    torrentSlug: string,
+    userRequest: UserRequest,
+  ): Promise<StreamableFile> {
+    const torrent: Torrent | null = await this.torrentRepository.findOne({
+      where: { slug: torrentSlug },
+    });
+
+    if (!torrent) {
+      throw new NotAcceptableException('Torrent not found');
+    }
+
+    const torrentFile = ParseTorrentFile(
+      readFileSync(`${process.env.FILE_LOCATION}${torrent?.filename}`),
+    );
+
+    if (torrentFile.announce && torrentFile.announce.length > 0) {
+      torrentFile.announce[0] = `${process.env.TRACKER_ADDRESS}/announce/${userRequest.user.passkey}`;
+      torrentFile['announce-list'] = [
+        [`${process.env.TRACKER_ADDRESS}/announce/${userRequest.user.passkey}`],
+      ];
+    }
+    return new StreamableFile(Bencode.encode(torrentFile), {
+      disposition: `attachment; filename="${torrent.name}".torrent`,
     });
   }
 }

@@ -37,10 +37,11 @@ export class AuthService {
    * @returns {String} JWT Token
    */
   async signin(userDto: AddUserDto): Promise<string> {
-    const user = await this.userService.getUserByUsername(
-      userDto.username,
-      true,
-    );
+    const user = await this.userService.getUserByUsername(userDto.username, {
+      password: true,
+      passkey: true,
+      email: true,
+    });
     if (!user || !(await compare(userDto.password, user.password))) {
       throw new NotAcceptableException('Wrong Username or password');
     }

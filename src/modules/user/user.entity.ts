@@ -21,3 +21,9 @@ export class User {
 export interface UserRequest extends Request {
   user: { id: string; passkey: string; username: string };
 }
+
+export interface UserFields {
+  password?: boolean;
+  passkey?: boolean;
+  email?: boolean;
+}

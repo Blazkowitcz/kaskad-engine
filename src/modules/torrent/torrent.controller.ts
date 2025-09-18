@@ -7,6 +7,8 @@ import {
   UseInterceptors,
   UseGuards,
   Req,
+  Param,
+  StreamableFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { TorrentService } from './torrent.service';
@@ -26,7 +28,7 @@ export class TorrentController {
    * @param infos {AddTorrentDto}
    * @returns {Boolean}
    */
-  @Post()
+  @Post('/upload')
   @UseGuards(IsAuthGuard)
   @UseInterceptors(FileInterceptor('torrent'))
   async addTorrent(
@@ -38,9 +40,36 @@ export class TorrentController {
     return true;
   }
 
+  /**
+   * Download Torrent file
+   * @param torrentSlug {String}
+   * @param userRequest {UserRequest}
+   * @returns {StreamableFile}
+   */
+  @Get('/download/:torrent_slug')
+  @UseGuards(IsAuthGuard)
+  async download(
+    @Param('torrent_slug') torrentSlug: string,
+    @Req() userRequest: UserRequest,
+  ): Promise<StreamableFile> {
+    return await this.torrentService.downloadTorrent(torrentSlug, userRequest);
+  }
+
+  /**
+   * Get 20 last torrents
+   */
   @Get('/last')
   @UseGuards(IsAuthGuard)
   async getLastTorrents(): Promise<Torrent[]> {
     return await this.torrentService.getLastTorrents();
+  }
+
+  /**
+   * Get 20 best torrents
+   */
+  @Get('/best')
+  @UseGuards(IsAuthGuard)
+  async getBestTorrents(): Promise<Torrent[]> {
+    return await this.torrentService.getBestTorrents();
   }
 }
