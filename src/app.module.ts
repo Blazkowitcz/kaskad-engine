@@ -10,6 +10,7 @@ import { SubcategoryModule } from './modules/subcategory/subcategory.module';
 import { TorrentModule } from './modules/torrent/torrent.module';
 import { PeerModule } from './modules/peer/peer.module';
 import { AnnouncerModule } from './modules/announcer/announcer.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { AnnouncerModule } from './modules/announcer/announcer.module';
     TorrentModule,
     PeerModule,
     AnnouncerModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService],

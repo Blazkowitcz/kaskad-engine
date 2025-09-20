@@ -4,6 +4,7 @@ import { Request } from 'express';
 import { Bencode } from 'bencode-ts';
 import { UserService } from '../user/user.service';
 import { User } from '../user/user.entity';
+import { Peer } from '../peer/peer.entity';
 
 @Injectable()
 export class AnnouncerService {
@@ -32,12 +33,17 @@ export class AnnouncerService {
       },
       user,
     );
+    const peers = await this.peerService.getPeersFromHash(
+      hashBuffer.toString('hex'),
+    );
     const data = {
       interval: 2700,
       min_interval: 1800,
       tracker_id: '127.0.0.1:3000',
       complete: false,
-      peers: [],
+      peers: peers.map((peer: Peer) => {
+        return { ip: peer.ip, port: peer.port };
+      }),
     };
     return Bencode.encode(data);
   }
