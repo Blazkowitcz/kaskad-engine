@@ -78,8 +78,8 @@ export class TorrentController {
   @UseGuards(IsAuthGuard)
   async searchTorrents(
     @Query()
-    queries: TorrentQuery,
+    query: TorrentQuery,
   ): Promise<Torrent[]> {
-    return await this.torrentService.searchTorrents(queries);
+    return await this.torrentService.searchTorrents(query);
   }
 }

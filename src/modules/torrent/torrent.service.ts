@@ -149,9 +149,9 @@ export class TorrentService {
     });
   }
 
-  async searchTorrents(queries: TorrentQuery): Promise<Torrent[]> {
+  async searchTorrents(query: TorrentQuery): Promise<Torrent[]> {
     const search = {};
-    for (const [key, value] of Object.entries(queries) as [
+    for (const [key, value] of Object.entries(query) as [
       keyof TorrentQuery,
       string,
     ][]) {
