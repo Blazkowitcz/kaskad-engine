@@ -57,3 +57,7 @@ export interface TorrentQuery {
   author?: string;
   description?: string;
 }
+
+export interface TorrentDetails extends Torrent {
+  peers?: [];
+}

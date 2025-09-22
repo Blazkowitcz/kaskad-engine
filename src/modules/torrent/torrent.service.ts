@@ -5,7 +5,7 @@ import {
   StreamableFile,
 } from '@nestjs/common';
 import { Repository, ILike, In } from 'typeorm';
-import { Torrent, TorrentQuery } from './torrent.entity';
+import { Torrent, TorrentQuery, TorrentDetails } from './torrent.entity';
 import { AddTorrentDto } from './dtos/torrent-add.dto';
 import ParseTorrentFile from 'parse-torrent-file';
 import { kebabCase } from 'lodash';
@@ -144,6 +144,7 @@ export class TorrentService {
         [`${process.env.TRACKER_ADDRESS}/announce/${userRequest.user.passkey}`],
       ];
     }
+    torrentFile.createdBy = 'Kaskad Engine';
     return new StreamableFile(Bencode.encode(torrentFile), {
       disposition: `attachment; filename="${torrent.name}".torrent`,
     });
@@ -184,5 +185,21 @@ export class TorrentService {
       where: search,
       relations: ['subcategory', 'subcategory.category', 'user'],
     });
+  }
+
+  /**
+   * Get torrent details from slug
+   * @param slug {String}
+   * @returns {Torrent}
+   */
+  async getTorrentDetails(slug: string): Promise<TorrentDetails> {
+    const torrent: Torrent | null = await this.torrentRepository.findOne({
+      where: { slug: slug },
+    });
+    if (!torrent) {
+      throw new NotAcceptableException('Torrent not found');
+    }
+
+    return { ...torrent, peers: [] };
   }
 }

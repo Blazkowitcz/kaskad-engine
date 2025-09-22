@@ -87,4 +87,17 @@ export class TorrentController {
   ): Promise<Torrent[]> {
     return await this.torrentService.searchTorrents(query);
   }
+
+  /**
+   * Get torrent details
+   * @param torrentSlug {String}
+   * @returns {Torrent}
+   */
+  @Get('/:torrent_slug')
+  @UseGuards(IsAuthGuard)
+  async getTorrentDetails(
+    @Param('torrent_slug') torrentSlug: string,
+  ): Promise<Torrent> {
+    return await this.torrentService.getTorrentDetails(torrentSlug);
+  }
 }
