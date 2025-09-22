@@ -4,8 +4,8 @@ import {
   NotAcceptableException,
   StreamableFile,
 } from '@nestjs/common';
-import { Repository } from 'typeorm';
-import { Torrent } from './torrent.entity';
+import { Repository, ILike, In } from 'typeorm';
+import { Torrent, TorrentQuery } from './torrent.entity';
 import { AddTorrentDto } from './dtos/torrent-add.dto';
 import ParseTorrentFile from 'parse-torrent-file';
 import { kebabCase } from 'lodash';
@@ -146,6 +146,43 @@ export class TorrentService {
     }
     return new StreamableFile(Bencode.encode(torrentFile), {
       disposition: `attachment; filename="${torrent.name}".torrent`,
+    });
+  }
+
+  async searchTorrents(queries: TorrentQuery): Promise<Torrent[]> {
+    const search = {};
+    for (const [key, value] of Object.entries(queries) as [
+      keyof TorrentQuery,
+      string,
+    ][]) {
+      switch (key) {
+        case 'name':
+          search['name'] = ILike(`%${value}%`);
+          break;
+        case 'description':
+          search['description'] = ILike(`%${value}%`);
+          break;
+        case 'categories':
+          search['subcategory'] = {
+            category: { slug: In(value.split(',')) },
+          };
+          break;
+        case 'subcategories':
+          search['subcategory'] = {
+            slug: In(value.split(',')),
+          };
+          break;
+        case 'author':
+          search['user'] = {
+            username: value,
+          };
+          break;
+      }
+    }
+
+    return await this.torrentRepository.find({
+      where: search,
+      relations: ['subcategory', 'subcategory.category', 'user'],
     });
   }
 }

@@ -9,13 +9,14 @@ import {
   Req,
   Param,
   StreamableFile,
+  Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { TorrentService } from './torrent.service';
 import { IsAuthGuard } from '../../common/guards/auth.guard';
 import type { UserRequest } from '../user/user.entity';
 import { AddTorrentDto } from './dtos/torrent-add.dto';
-import { Torrent } from './torrent.entity';
+import { Torrent, type TorrentQuery } from './torrent.entity';
 
 @Controller('torrents')
 export class TorrentController {
@@ -71,5 +72,14 @@ export class TorrentController {
   @UseGuards(IsAuthGuard)
   async getBestTorrents(): Promise<Torrent[]> {
     return await this.torrentService.getBestTorrents();
+  }
+
+  @Get('/search')
+  @UseGuards(IsAuthGuard)
+  async searchTorrents(
+    @Query()
+    queries: TorrentQuery,
+  ): Promise<Torrent[]> {
+    return await this.torrentService.searchTorrents(queries);
   }
 }

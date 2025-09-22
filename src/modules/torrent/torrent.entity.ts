@@ -49,3 +49,11 @@ export class Torrent {
   @Column({ type: Date })
   updatedAt: Date;
 }
+
+export interface TorrentQuery {
+  name?: string;
+  categories?: string;
+  subcategories?: string;
+  author?: string;
+  description?: string;
+}
