@@ -74,6 +74,11 @@ export class TorrentController {
     return await this.torrentService.getBestTorrents();
   }
 
+  /**
+   * Search torrents with query filters
+   * @param query {String}
+   * @returns {Torrent[]}
+   */
   @Get('/search')
   @UseGuards(IsAuthGuard)
   async searchTorrents(
