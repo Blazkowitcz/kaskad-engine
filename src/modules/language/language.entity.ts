@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany } from 'typeorm';
+import { Torrent } from '../torrent/torrent.entity';
 
 @Entity('languages')
 export class Language {
@@ -10,4 +11,10 @@ export class Language {
 
   @Column({ type: String })
   slug: string;
+
+  @ManyToMany(
+    () => Torrent,
+    (torrent: Torrent): Language[] => torrent.languages,
+  )
+  torrents: Torrent[];
 }

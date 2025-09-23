@@ -1,4 +1,4 @@
-import { IsObject, IsString } from 'class-validator';
+import { IsString } from 'class-validator';
 
 export class AddTorrentDto {
   @IsString()
@@ -12,4 +12,7 @@ export class AddTorrentDto {
 
   @IsString()
   mediainfo: string;
+
+  @IsString()
+  languages?: string;
 }

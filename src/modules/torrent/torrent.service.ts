@@ -11,6 +11,7 @@ import ParseTorrentFile from 'parse-torrent-file';
 import { kebabCase } from 'lodash';
 import { UserRequest } from '../user/user.entity';
 import { SubcategoryService } from '../subcategory/subcategory.service';
+import { LanguageService } from '../language/language.service';
 import { writeFileSync } from 'fs';
 import { randomBytes } from 'crypto';
 import { readFileSync } from 'fs';
@@ -23,6 +24,7 @@ export class TorrentService {
     @InjectRepository(Torrent)
     private readonly torrentRepository: Repository<Torrent>,
     private readonly subcategoryService: SubcategoryService,
+    private readonly languageService: LanguageService,
   ) {}
 
   /**
@@ -32,12 +34,19 @@ export class TorrentService {
    * @param description {String}
    * @param mediainfo {String}
    * @param subcategoryId {String}
+   * @param languages {String}
    * @param user {UserRequest}
    * @returns {Torrent}
    */
   async addTorrent(
     file: Express.Multer.File,
-    { name, description, mediainfo, subcategory: subcategoryId }: AddTorrentDto,
+    {
+      name,
+      description,
+      mediainfo,
+      subcategory: subcategoryId,
+      languages,
+    }: AddTorrentDto,
     { user }: UserRequest,
   ): Promise<Torrent> {
     const subcategory =
@@ -68,8 +77,14 @@ export class TorrentService {
         updatedAt: new Date(),
         size: file.size,
         user,
+        languages: languages // Maybe optimization with cache data
+          ? await this.languageService.getLanguagesFromSlugArray(
+              languages?.split(','),
+            )
+          : [],
       }),
     );
+
     writeFileSync(`${process.env.FILE_LOCATION}${filename}`, file.buffer);
     return torrent;
   }
@@ -150,6 +165,11 @@ export class TorrentService {
     });
   }
 
+  /**
+   * Search torrents with query filters
+   * @param query {TorrentQuery}
+   * @returns {Torrent[]}
+   */
   async searchTorrents(query: TorrentQuery): Promise<Torrent[]> {
     const search = {};
     for (const [key, value] of Object.entries(query) as [
@@ -195,6 +215,7 @@ export class TorrentService {
   async getTorrentDetails(slug: string): Promise<TorrentDetails> {
     const torrent: Torrent | null = await this.torrentRepository.findOne({
       where: { slug: slug },
+      relations: ['subcategory', 'subcategory.category', 'user', 'languages'],
     });
     if (!torrent) {
       throw new NotAcceptableException('Torrent not found');

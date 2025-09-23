@@ -1,5 +1,13 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  ManyToMany,
+  JoinTable,
+} from 'typeorm';
 import { User } from '../user/user.entity';
+import { Language } from '../language/language.entity';
 import { Subcategory } from '../subcategory/subcategory.entity';
 
 @Entity('torrents')
@@ -48,6 +56,14 @@ export class Torrent {
 
   @Column({ type: Date })
   updatedAt: Date;
+
+  @ManyToMany(() => Language)
+  @JoinTable({
+    name: 'torrent_languages',
+    joinColumn: { name: 'torrent_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'language_id', referencedColumnName: 'id' },
+  })
+  languages: Language[];
 }
 
 export interface TorrentQuery {

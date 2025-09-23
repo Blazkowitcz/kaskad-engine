@@ -1,6 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Language } from './language.entity';
 import { AddLanguageDto } from './dtos/language-add.dto';
 
@@ -34,5 +34,9 @@ export class LanguageService {
    */
   async getLanguages(): Promise<Language[]> {
     return this.languageRepository.find();
+  }
+
+  async getLanguagesFromSlugArray(slugArray: string[]): Promise<Language[]> {
+    return this.languageRepository.findBy({ slug: In(slugArray) });
   }
 }
