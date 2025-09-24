@@ -51,4 +51,13 @@ export class UserService {
   async getUserByPasskey(passkey: string) {
     return await this.userRepository.findOne({ where: { passkey } });
   }
+
+  /**
+   * Update user information
+   * @param user {User}
+   * @returns {User}
+   */
+  async updateUser(user: User): Promise<User> {
+    return this.userRepository.save(user);
+  }
 }
