@@ -16,6 +16,19 @@ export class User {
 
   @Column({ type: String, select: false })
   passkey: string;
+
+  @Column({ type: Number, default: 0 })
+  downloaded: number;
+
+  @Column({ type: Number, default: 10240 })
+  uploaded: number;
+
+  /**
+   * Return user ratio
+   */
+  getRatio(): number {
+    return this.uploaded / this.downloaded;
+  }
 }
 
 export interface UserRequest extends Request {
