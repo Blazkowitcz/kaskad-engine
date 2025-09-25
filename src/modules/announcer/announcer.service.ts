@@ -6,6 +6,7 @@ import { UserService } from '../user/user.service';
 import { User } from '../user/user.entity';
 import { Peer } from '../peer/peer.entity';
 import { env } from 'node:process';
+import { translate } from '../../helpers/i18n.helper';
 
 @Injectable()
 export class AnnouncerService {
@@ -19,14 +20,18 @@ export class AnnouncerService {
 
     if (!user) {
       return new StreamableFile(
-        Bencode.encode({ 'failure reason': 'User does not exist' }),
+        Bencode.encode({
+          'failure reason': translate('announcer.userDoesNotExist'),
+        }),
         { type: 'text/plain', disposition: 'inline' },
       );
     }
 
-    if (user.getRatio() < Number(env.MIN_RATIO)) {
+    if (user.getRatio() < Number(env.MIN_RATIO) && !!env.FULL_FREELEECH) {
       return new StreamableFile(
-        Bencode.encode({ 'failure reason': 'Not enough ratio' }),
+        Bencode.encode({
+          'failure reason': translate('announcer.notEnoughRatio'),
+        }),
         { type: 'text/plain', disposition: 'inline' },
       );
     }
@@ -36,9 +41,9 @@ export class AnnouncerService {
 
     return new StreamableFile(
       Bencode.encode({
-        interval: 2700,
-        min_interval: 1800,
-        tracker_id: '127.0.0.1:3000',
+        interval: Number(env.INTERVAL),
+        min_interval: Number(env.MIN_INTERVAL),
+        tracker_id: env.TRACKER_ADDRESS,
         complete: 0,
         peers: peers.map((peer) => ({ ip: peer.ip, port: peer.port })),
       }),

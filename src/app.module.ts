@@ -12,6 +12,9 @@ import { PeerModule } from './modules/peer/peer.module';
 import { AnnouncerModule } from './modules/announcer/announcer.module';
 import { LanguageModule } from './modules/language/language.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { I18nModule, I18nService, QueryResolver } from 'nestjs-i18n';
+import * as path from 'node:path';
+import { setI18n } from './helpers/i18n.helper';
 
 @Module({
   imports: [
@@ -35,6 +38,14 @@ import { ScheduleModule } from '@nestjs/schedule';
         entities: [`${__dirname}/modules/**/**.entity{.ts,.js}`],
       }),
     }),
+    I18nModule.forRoot({
+      fallbackLanguage: 'en',
+      loaderOptions: {
+        path: path.join(process.cwd(), 'src/i18n/'),
+        watch: true,
+      },
+      resolvers: [{ use: QueryResolver, options: ['lang'] }],
+    }),
     UserModule,
     AuthModule,
     CategoryModule,
@@ -48,4 +59,8 @@ import { ScheduleModule } from '@nestjs/schedule';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  constructor(private readonly i18n: I18nService) {
+    setI18n(i18n);
+  }
+}

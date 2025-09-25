@@ -1,0 +1,6 @@
+{
+  "failures": {
+    "userDoesNotExist": "User does not exist",
+    "notEnoughRatio": "Not enough ratio"
+  }
+}
