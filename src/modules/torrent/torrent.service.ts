@@ -51,7 +51,6 @@ export class TorrentService {
   ): Promise<Torrent> {
     const subcategory =
       await this.subcategoryService.getSubcategoryById(subcategoryId);
-    if (!subcategory) throw new Error('Subcategory not found');
 
     const { infoHash } = ParseTorrentFile(file.buffer);
 
@@ -141,14 +140,9 @@ export class TorrentService {
     torrentSlug: string,
     userRequest: UserRequest,
   ): Promise<StreamableFile> {
-    const torrent: Torrent | null = await this.torrentRepository.findOne({
+    const torrent: Torrent | null = await this.torrentRepository.findOneOrFail({
       where: { slug: torrentSlug },
     });
-
-    if (!torrent) {
-      throw new NotAcceptableException('Torrent not found');
-    }
-
     const torrentFile = ParseTorrentFile(
       readFileSync(`${process.env.FILE_LOCATION}${torrent?.filename}`),
     );
@@ -213,14 +207,38 @@ export class TorrentService {
    * @returns {Torrent}
    */
   async getTorrentDetails(slug: string): Promise<TorrentDetails> {
-    const torrent: Torrent | null = await this.torrentRepository.findOne({
+    const torrent: Torrent | null = await this.torrentRepository.findOneOrFail({
       where: { slug: slug },
       relations: ['subcategory', 'subcategory.category', 'user', 'languages'],
     });
-    if (!torrent) {
-      throw new NotAcceptableException('Torrent not found');
-    }
-
     return { ...torrent, peers: [] };
+  }
+
+  /**
+   * Validate a torrent so it can be seen on search
+   * @param torrentId {String}
+   * @returns {Boolean}
+   */
+  async validateTorrent(torrentId: string): Promise<boolean> {
+    const torrent = await this.torrentRepository.findOneOrFail({
+      where: { id: torrentId },
+    });
+    torrent.validated = true;
+    await this.torrentRepository.save(torrent);
+    return true;
+  }
+
+  /**
+   * Block on unblock a torrent so it cant be downloaded or found on search
+   * @param torrentId {String}
+   * @returns {Boolean}
+   */
+  async blockOrUnblockTorrent(torrentId: string): Promise<boolean> {
+    const torrent = await this.torrentRepository.findOneOrFail({
+      where: { id: torrentId },
+    });
+    torrent.blocked = !torrent.blocked;
+    await this.torrentRepository.save(torrent);
+    return torrent.blocked;
   }
 }
