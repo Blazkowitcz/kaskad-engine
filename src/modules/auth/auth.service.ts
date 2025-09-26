@@ -6,6 +6,7 @@ import { compare, hash } from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { JwtService } from '@nestjs/jwt';
 import { translate } from '../../helpers/i18n.helper';
+import { encrypt } from '../../helpers/crypto.helper';
 
 @Injectable()
 export class AuthService {
@@ -54,7 +55,7 @@ export class AuthService {
     return this.jwtService.sign({
       id: user.id,
       username: user.username,
-      passkey: user.passkey,
+      passkey: encrypt(user.passkey),
     });
   }
 }

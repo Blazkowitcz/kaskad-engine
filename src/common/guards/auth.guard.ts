@@ -7,6 +7,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import * as console from 'node:console';
+import { decrypt } from '../../helpers/crypto.helper';
 
 interface JwtPayload {
   id: string;
@@ -32,7 +33,9 @@ export class IsAuthGuard implements CanActivate {
     }
 
     try {
-      request['user'] = this.jwtService.verify<JwtPayload>(token);
+      const user: JwtPayload = this.jwtService.verify<JwtPayload>(token);
+      user.passkey = decrypt(user.passkey);
+      request['user'] = user;
       return true;
     } catch (error) {
       console.error(error);
