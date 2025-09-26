@@ -21,7 +21,7 @@ export class AnnouncerService {
     if (!user) {
       return new StreamableFile(
         Bencode.encode({
-          'failure reason': translate('announcer.userDoesNotExist'),
+          'failure reason': translate('announcer.failures.userDoesNotExist'),
         }),
         { type: 'text/plain', disposition: 'inline' },
       );
@@ -30,7 +30,7 @@ export class AnnouncerService {
     if (user.getRatio() < Number(env.MIN_RATIO) && !!env.FULL_FREELEECH) {
       return new StreamableFile(
         Bencode.encode({
-          'failure reason': translate('announcer.notEnoughRatio'),
+          'failure reason': translate('announcer.failures.notEnoughRatio'),
         }),
         { type: 'text/plain', disposition: 'inline' },
       );
