@@ -44,6 +44,8 @@ export class SubcategoryService {
    * @returns {Subcategory}
    */
   async getSubcategoryById(subcategoryId: string) {
-    return await this.subcategoryRepository.findOneBy({ id: subcategoryId });
+    return await this.subcategoryRepository.findOneByOrFail({
+      id: subcategoryId,
+    });
   }
 }

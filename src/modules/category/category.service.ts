@@ -3,6 +3,7 @@ import { Injectable, NotAcceptableException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Category } from './category.entity';
 import { AddCategoryDto } from './dtos/category-add.dto';
+import { translate } from '../../helpers/i18n.helper';
 
 @Injectable()
 export class CategoryService {
@@ -21,7 +22,9 @@ export class CategoryService {
       where: { name: addCategoryDto.name },
     });
     if (category) {
-      throw new NotAcceptableException('Category already exists');
+      throw new NotAcceptableException(
+        translate('category.failures.alreadyExist'),
+      );
     }
     category = this.categoryRepository.create(addCategoryDto);
     return await this.categoryRepository.save(category);
