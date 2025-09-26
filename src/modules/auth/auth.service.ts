@@ -5,6 +5,7 @@ import { UserService } from '../user/user.service';
 import { compare, hash } from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { JwtService } from '@nestjs/jwt';
+import { translate } from '../../helpers/i18n.helper';
 
 @Injectable()
 export class AuthService {
@@ -23,7 +24,9 @@ export class AuthService {
       userDto?.username,
     );
     if (user) {
-      throw new NotAcceptableException('Username already exists');
+      throw new NotAcceptableException(
+        translate('auth.failures.usernameAlreadyExist'),
+      );
     }
     userDto.password = await hash(userDto.password, 10);
     userDto.passkey = randomBytes(16).toString('hex');
@@ -43,7 +46,9 @@ export class AuthService {
       email: true,
     });
     if (!user || !(await compare(userDto.password, user.password))) {
-      throw new NotAcceptableException('Wrong Username or password');
+      throw new NotAcceptableException(
+        translate('auth.failures.wrongUsernameOrPassword'),
+      );
     }
 
     return this.jwtService.sign({
