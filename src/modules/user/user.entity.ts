@@ -1,4 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToMany,
+  JoinTable,
+} from 'typeorm';
+import { Group } from '../group/group.entity';
 
 @Entity('users')
 export class User {
@@ -23,6 +30,14 @@ export class User {
   @Column({ type: Number, default: 10240 })
   uploaded: number;
 
+  @ManyToMany(() => Group)
+  @JoinTable({
+    name: 'user_groups',
+    joinColumn: { name: 'user_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'group_id', referencedColumnName: 'id' },
+  })
+  groups: Group[];
+
   /**
    * Return user ratio
    */
@@ -32,7 +47,7 @@ export class User {
 }
 
 export interface UserRequest extends Request {
-  user: { id: string; passkey: string; username: string };
+  user: { id: string; passkey: string; username: string; groups: Group[] };
 }
 
 export interface UserFields {

@@ -46,6 +46,7 @@ export class AuthService {
       passkey: true,
       email: true,
     });
+    console.log(user);
     if (!user || !(await compare(userDto.password, user.password))) {
       throw new NotAcceptableException(
         translate('auth.failures.wrongUsernameOrPassword'),
@@ -56,6 +57,13 @@ export class AuthService {
       id: user.id,
       username: user.username,
       passkey: encrypt(user.passkey),
+      groups: user.groups.map((group) => {
+        return {
+          id: group.id,
+          name: group.name,
+          priority: group.priority,
+        };
+      }),
     });
   }
 }

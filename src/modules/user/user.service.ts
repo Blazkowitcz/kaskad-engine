@@ -41,6 +41,7 @@ export class UserService {
     return await this.userRepository.findOne({
       where: { username },
       select: { id: true, username: true, ...fields },
+      relations: ['groups'],
     });
   }
 
@@ -58,6 +59,27 @@ export class UserService {
    * @returns {User}
    */
   async updateUser(user: User): Promise<User> {
+    return this.userRepository.save(user);
+  }
+
+  /**
+   * Get user by its ID
+   * @param userId {String}
+   * @returns {User}
+   */
+  async getUserById(userId: string): Promise<User> {
+    return await this.userRepository.findOneOrFail({
+      where: { id: userId },
+      relations: ['groups'],
+    });
+  }
+
+  /**
+   * Edit user information
+   * @param user {User}
+   * @returns {User}
+   */
+  async editUser(user: User): Promise<User> {
     return this.userRepository.save(user);
   }
 }

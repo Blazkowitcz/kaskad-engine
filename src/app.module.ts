@@ -11,6 +11,7 @@ import { TorrentModule } from './modules/torrent/torrent.module';
 import { PeerModule } from './modules/peer/peer.module';
 import { AnnouncerModule } from './modules/announcer/announcer.module';
 import { LanguageModule } from './modules/language/language.module';
+import { GroupModule } from './modules/group/group.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { I18nModule, I18nService, QueryResolver } from 'nestjs-i18n';
 import * as path from 'node:path';
@@ -33,8 +34,8 @@ import { setI18n } from './helpers/i18n.helper';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_NAME'),
-        synchronize: false,
-        autoSchemaSync: false,
+        synchronize: true,
+        autoSchemaSync: true,
         entities: [`${__dirname}/modules/**/**.entity{.ts,.js}`],
       }),
     }),
@@ -54,6 +55,7 @@ import { setI18n } from './helpers/i18n.helper';
     PeerModule,
     AnnouncerModule,
     LanguageModule,
+    GroupModule,
     ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
