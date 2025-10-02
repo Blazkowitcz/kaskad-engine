@@ -16,5 +16,6 @@ import { LanguageModule } from '../language/language.module';
   ],
   controllers: [TorrentController],
   providers: [TorrentService],
+  exports: [TorrentService],
 })
 export class TorrentModule {}

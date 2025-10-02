@@ -57,6 +57,9 @@ export class Torrent {
   @Column({ type: Date })
   updatedAt: Date;
 
+  @Column({ type: Boolean, default: false })
+  isFreeleech: boolean;
+
   @ManyToMany(() => Language)
   @JoinTable({
     name: 'torrent_languages',

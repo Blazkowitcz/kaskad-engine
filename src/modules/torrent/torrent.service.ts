@@ -241,4 +241,15 @@ export class TorrentService {
     await this.torrentRepository.save(torrent);
     return torrent.blocked;
   }
+
+  /**
+   * Get torrent from its hash
+   * @param hash {String}
+   * @returns {Torrent}
+   */
+  async getTorrentFromHash(hash: string): Promise<Torrent> {
+    return await this.torrentRepository.findOneOrFail({
+      where: { hash },
+    });
+  }
 }
