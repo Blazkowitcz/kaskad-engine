@@ -1,5 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { Group } from './group.entity';
 import { Repository } from 'typeorm';
 import { UserRequest } from '../user/user.entity';
@@ -7,12 +7,27 @@ import { UserService } from '../user/user.service';
 import { AddUserGroupDto } from './dtos/user_group-add.dto';
 
 @Injectable()
-export class GroupService {
+export class GroupService implements OnModuleInit {
+  private groups: Group[] = [];
+  private readonly logger = new Logger(`GroupCache`);
+
   constructor(
     @InjectRepository(Group)
     private readonly groupRepository: Repository<Group>,
     private readonly userService: UserService,
   ) {}
+
+  async onModuleInit() {
+    this.groups = await this.groupRepository.find();
+    this.logger.log(`Group cache loaded with ${this.groups.length} entries`);
+  }
+
+  /**
+   * Get groups stored in cache
+   */
+  getGroups(): Group[] {
+    return this.groups;
+  }
 
   /**
    * Associate a group to a user

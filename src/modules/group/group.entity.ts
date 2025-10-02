@@ -9,6 +9,9 @@ export class Group {
   name: string;
 
   @Column({ type: String })
+  code: string;
+
+  @Column({ type: String })
   icon: string;
 
   @Column({ type: Boolean, default: false })
