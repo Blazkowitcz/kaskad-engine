@@ -3,6 +3,7 @@ import { PeerService } from '../peer/peer.service';
 import { Request } from 'express';
 import { Bencode } from 'bencode-ts';
 import { UserService } from '../user/user.service';
+import { TorrentService } from '../torrent/torrent.service';
 import { User } from '../user/user.entity';
 import { Peer } from '../peer/peer.entity';
 import { env } from 'node:process';
@@ -13,10 +14,15 @@ export class AnnouncerService {
   constructor(
     private readonly userService: UserService,
     private readonly peerService: PeerService,
+    private readonly torrentService: TorrentService,
   ) {}
 
   async announce(request: Request, passkey: string): Promise<StreamableFile> {
     const user: User | null = await this.userService.getUserByPasskey(passkey);
+
+    const torrent = await this.torrentService.getTorrentFromHash(
+      request.query.info_hash as string,
+    );
 
     if (!user) {
       return new StreamableFile(
@@ -27,7 +33,12 @@ export class AnnouncerService {
       );
     }
 
-    if (user.getRatio() < Number(env.MIN_RATIO) && !!env.FULL_FREELEECH) {
+    if (
+      user.getRatio() < Number(env.MIN_RATIO) &&
+      !!env.FULL_FREELEECH &&
+      Number(request.query.left) > 0 &&
+      !torrent.isFreeleech
+    ) {
       return new StreamableFile(
         Bencode.encode({
           'failure reason': translate('announcer.failures.notEnoughRatio'),
@@ -77,6 +88,7 @@ export class AnnouncerService {
     user: User,
     request: Request,
   ): Promise<Peer[]> {
+    console.log(request.query);
     const hashBuffer = Buffer.from(
       (request.query.info_hash as string) || '',
       'binary',
