@@ -7,6 +7,7 @@ export const seedGroups = async (dataSource: DataSource) => {
     {
       name: 'Administrator',
       icon: 'group-administrator',
+      code: 'ADMINISTRATOR',
       isModerator: true,
       isAdministrator: true,
       isTrusted: true,
@@ -19,6 +20,7 @@ export const seedGroups = async (dataSource: DataSource) => {
     {
       name: 'Moderator',
       icon: 'group-moderator',
+      code: 'MODERATOR',
       isModerator: true,
       isAdministrator: false,
       isTrusted: false,
@@ -31,6 +33,7 @@ export const seedGroups = async (dataSource: DataSource) => {
     {
       name: 'Super-Moderator',
       icon: 'group-super-moderator',
+      code: 'SUPER_MODERATOR',
       isModerator: true,
       isAdministrator: false,
       isTrusted: false,
@@ -43,6 +46,7 @@ export const seedGroups = async (dataSource: DataSource) => {
     {
       name: 'Banned',
       icon: 'group-banned',
+      code: 'BANNED',
       isModerator: false,
       isAdministrator: false,
       isTrusted: false,
@@ -55,6 +59,7 @@ export const seedGroups = async (dataSource: DataSource) => {
     {
       name: 'Trusted',
       icon: 'group-trusted',
+      code: 'TRUSTED',
       isModerator: false,
       isAdministrator: false,
       isTrusted: true,

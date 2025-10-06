@@ -58,7 +58,11 @@ export class AuthService {
       username: user.username,
       passkey: encrypt(user.passkey),
       groups: user.groups.map((group) => {
-        return group;
+        return {
+          id: group.id,
+          code: group.code,
+          priority: group.priority,
+        };
       }),
     });
   }

@@ -10,6 +10,7 @@ import {
   Param,
   StreamableFile,
   Query,
+  Put,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { TorrentService } from './torrent.service';
@@ -17,6 +18,7 @@ import { IsAuthGuard } from '../../common/guards/auth.guard';
 import type { UserRequest } from '../user/user.entity';
 import { AddTorrentDto } from './dtos/torrent-add.dto';
 import { Torrent, type TorrentQuery } from './torrent.entity';
+import { EditTorrentDto } from './dtos/torrent-edit.dto';
 
 @Controller('torrents')
 export class TorrentController {
@@ -99,5 +101,18 @@ export class TorrentController {
     @Param('torrent_slug') torrentSlug: string,
   ): Promise<Torrent> {
     return await this.torrentService.getTorrentDetails(torrentSlug);
+  }
+
+  /**
+   * Set of unset torrent freeleech
+   * @param dto {EditTorrentDto}
+   * @returns {Boolean}
+   */
+  @Put('setOrUnsetTorrentFreeleech')
+  @UseGuards(IsAuthGuard)
+  async setOrUnsetTorrentFreeleech(
+    @Body() dto: EditTorrentDto,
+  ): Promise<boolean> {
+    return await this.torrentService.setOrUnsetTorrentFreeleech(dto);
   }
 }

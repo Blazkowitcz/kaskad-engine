@@ -74,9 +74,11 @@ export class GroupService implements OnModuleInit {
       (g) => g.priority < group.priority && g.priority > 0,
     );
 
+    console.log(hasPermission);
+
     if (!hasPermission) return false;
 
-    user.groups = user.groups.filter((g) => g.id !== group.id);
+    user.groups = user.groups.filter((g) => g.code !== group.code);
     await this.userService.editUser(user);
     return true;
   }

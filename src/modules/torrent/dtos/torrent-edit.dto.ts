@@ -1,6 +1,9 @@
-import { IsString } from 'class-validator';
+import { IsString, IsBoolean } from 'class-validator';
 
 export class EditTorrentDto {
+  @IsString()
+  id?: string;
+
   @IsString()
   name?: string;
 
@@ -15,4 +18,7 @@ export class EditTorrentDto {
 
   @IsString()
   languages?: string;
+
+  @IsBoolean()
+  isFreeleech?: string;
 }

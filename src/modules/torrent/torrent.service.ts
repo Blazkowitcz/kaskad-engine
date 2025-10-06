@@ -17,6 +17,7 @@ import { randomBytes } from 'crypto';
 import { readFileSync } from 'fs';
 import { Bencode } from 'bencode-ts';
 import * as process from 'node:process';
+import { EditTorrentDto } from './dtos/torrent-edit.dto';
 
 @Injectable()
 export class TorrentService {
@@ -251,5 +252,20 @@ export class TorrentService {
     return await this.torrentRepository.findOneOrFail({
       where: { hash },
     });
+  }
+
+  /**
+   * Set of unset torrent freeleech
+   * @returns {Boolean}
+   */
+  async setOrUnsetTorrentFreeleech(
+    dto: EditTorrentDto | undefined,
+  ): Promise<boolean> {
+    const torrent: Torrent = await this.torrentRepository.findOneOrFail({
+      where: { id: dto?.id },
+    });
+    torrent.isFreeleech = !torrent.isFreeleech;
+    await this.torrentRepository.save(torrent);
+    return true;
   }
 }
