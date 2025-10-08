@@ -1,5 +1,5 @@
 import { Injectable, NotAcceptableException } from '@nestjs/common';
-import { User } from '../user/user.entity';
+import { User, UserRequest } from '../user/user.entity';
 import { AddUserDto } from '../user/dtos/user-add.dto';
 import { UserService } from '../user/user.service';
 import { compare, hash } from 'bcrypt';
@@ -7,6 +7,7 @@ import { randomBytes } from 'crypto';
 import { JwtService } from '@nestjs/jwt';
 import { translate } from '../../helpers/i18n.helper';
 import { encrypt } from '../../helpers/crypto.helper';
+import { Request } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -46,7 +47,6 @@ export class AuthService {
       passkey: true,
       email: true,
     });
-    console.log(user);
     if (!user || !(await compare(userDto.password, user.password))) {
       throw new NotAcceptableException(
         translate('auth.failures.wrongUsernameOrPassword'),
@@ -65,5 +65,26 @@ export class AuthService {
         };
       }),
     });
+  }
+
+  /**
+   * Check the token integrity
+   * @returns {Boolean}
+   * @param request
+   */
+  check(request: Request): UserRequest | null {
+    try {
+      const token = (request.cookies?.token as string) || null;
+      if (!token) return null;
+      const user = this.jwtService.verify<UserRequest>(token);
+      if (!user) {
+        throw new NotAcceptableException(
+          translate('auth.failures.wrongUsernameOrPassword'),
+        );
+      }
+      return user;
+    } catch {
+      return null;
+    }
   }
 }
