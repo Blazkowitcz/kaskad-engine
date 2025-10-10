@@ -1,7 +1,7 @@
-import { Controller, Post, Body, Get, Req } from '@nestjs/common';
+import { Controller, Post, Body, Get, Req, Res } from '@nestjs/common';
 import { AddUserDto } from '../user/dtos/user-add.dto';
 import { AuthService } from './auth.service';
-import express from 'express';
+import { type Request, type Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -17,13 +17,21 @@ export class AuthController {
   }
 
   @Post('signin')
-  async signin(@Body() user: AddUserDto): Promise<string> {
-    console.log(user);
-    return this.authService.signin(user);
+  async signin(
+    @Res() res: Response,
+    @Body() user: AddUserDto,
+  ): Promise<Response<{ token: boolean }>> {
+    const token = await this.authService.signin(user);
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+    });
+    return res.status(200).json({ connected: true });
   }
 
   @Get('check')
-  check(@Req() request: express.Request) {
+  check(@Req() request: Request) {
     return this.authService.check(request);
   }
 }
