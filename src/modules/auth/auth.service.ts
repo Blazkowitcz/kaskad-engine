@@ -41,7 +41,7 @@ export class AuthService {
    * @param userDto {AddUserDto}
    * @returns {String} JWT Token
    */
-  async signin(userDto: AddUserDto): Promise<{ token: string }> {
+  async signin(userDto: AddUserDto): Promise<string> {
     const user = await this.userService.getUserByUsername(userDto.username, {
       password: true,
       passkey: true,
@@ -52,20 +52,18 @@ export class AuthService {
         translate('auth.failures.wrongUsernameOrPassword'),
       );
     }
-    return {
-      token: this.jwtService.sign({
-        id: user.id,
-        username: user.username,
-        passkey: encrypt(user.passkey),
-        groups: user.groups.map((group) => {
-          return {
-            id: group.id,
-            code: group.code,
-            priority: group.priority,
-          };
-        }),
+    return this.jwtService.sign({
+      id: user.id,
+      username: user.username,
+      passkey: encrypt(user.passkey),
+      groups: user.groups.map((group) => {
+        return {
+          id: group.id,
+          code: group.code,
+          priority: group.priority,
+        };
       }),
-    };
+    });
   }
 
   /**
