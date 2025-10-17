@@ -21,17 +21,18 @@ export class AuthController {
     @Res() res: Response,
     @Body() user: AddUserDto,
   ): Promise<Response<{ token: boolean }>> {
+    console.log(user);
     const token = await this.authService.signin(user);
     res.cookie('token', token, {
       httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
+      secure: true,
+      sameSite: 'none',
     });
     return res.status(200).json({ connected: true });
   }
 
   @Get('check')
-  check(@Req() request: Request) {
-    return this.authService.check(request);
+  check(@Res() res: Response, @Req() request: Request) {
+    return res.status(200).json({ connected: true });
   }
 }

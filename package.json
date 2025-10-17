@@ -23,7 +23,8 @@
     "migration:run": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d ./data-source.ts",
     "migration:revert": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:revert -d ./data-source.ts",
     "migration:create": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:create ./src/migrations/Init",
-    "seed": "ts-node -r tsconfig-paths/register src/seeds/run.ts"
+    "seed": "ts-node -r tsconfig-paths/register src/seeds/run.ts",
+    "certificate:generate": "openssl req -x509 -newkey rsa:2048 -keyout ./certs/key.pem -out ./certs/cert.pem -days 365 -nodes -subj \"/CN=localhost\""
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
