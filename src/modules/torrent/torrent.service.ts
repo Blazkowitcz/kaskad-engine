@@ -53,7 +53,7 @@ export class TorrentService {
     const subcategory =
       await this.subcategoryService.getSubcategoryById(subcategoryId);
 
-    const { infoHash } = ParseTorrentFile(file.buffer);
+    const { infoHash, length } = ParseTorrentFile(file.buffer);
 
     let torrent = await this.torrentRepository.findOne({
       where: { hash: infoHash },
@@ -75,7 +75,7 @@ export class TorrentService {
         completed: 0,
         createdAt: new Date(),
         updatedAt: new Date(),
-        size: file.size,
+        size: length,
         user,
         languages: languages // Maybe optimization with cache data
           ? await this.languageService.getLanguagesFromSlugArray(
