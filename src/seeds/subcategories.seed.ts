@@ -26,6 +26,18 @@ export const seedSubcategories = async (dataSource: DataSource) => {
       icon: 'people',
       category: 'videos',
     },
+    {
+      name: 'Linux',
+      slug: 'linux',
+      icon: 'linux',
+      category: 'system',
+    },
+    {
+      name: 'Windows',
+      slug: 'windows',
+      icon: 'windows',
+      category: 'system',
+    },
   ];
 
   for (const sub of subcategories) {

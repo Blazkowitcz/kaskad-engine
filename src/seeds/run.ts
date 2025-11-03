@@ -1,4 +1,4 @@
-import { AppDataSource } from '../../data-source'; // Ton fichier de config TypeORM
+import { AppDataSource } from '../../data-source';
 import { runSeeds } from './index';
 
 const main = async () => {
