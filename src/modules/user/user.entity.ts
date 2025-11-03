@@ -24,7 +24,7 @@ export class User {
   @Column({ type: String, select: false })
   passkey: string;
 
-  @Column({ type: Number, default: 0 })
+  @Column({ type: 'bigint', default: 0 })
   downloaded: number;
 
   @Column({ type: Number, default: 10240 })
