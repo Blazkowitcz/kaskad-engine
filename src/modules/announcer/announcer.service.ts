@@ -8,6 +8,7 @@ import { User } from '../user/user.entity';
 import { Peer } from '../peer/peer.entity';
 import { env } from 'node:process';
 import { translate } from '../../helpers/i18n.helper';
+import { isHex, getInfoHashHexFromUrl } from '../../helpers/string.helper';
 
 @Injectable()
 export class AnnouncerService {
@@ -17,12 +18,22 @@ export class AnnouncerService {
     private readonly torrentService: TorrentService,
   ) {}
 
+  /**
+   * Respond to announces from torrent clients
+   * @param request {Request}
+   * @param passkey {string}
+   */
   async announce(request: Request, passkey: string): Promise<StreamableFile> {
-    const user: User | null = await this.userService.getUserByPasskey(passkey);
+    // Get hash to hex format
+    const hash: string = isHex(request.query.info_hash as string)
+      ? (request.query.info_hash as string)
+      : (getInfoHashHexFromUrl(request.originalUrl) ?? '');
 
-    const torrent = await this.torrentService.getTorrentFromHash(
-      request.query.info_hash as string,
-    );
+    // Get torrent from hash
+    const torrent = await this.torrentService.getTorrentFromHash(hash);
+
+    // Get user by its passkey
+    const user: User | null = await this.userService.getUserByPasskey(passkey);
 
     if (!user) {
       return new StreamableFile(
@@ -47,9 +58,11 @@ export class AnnouncerService {
       );
     }
 
+    // Update peers list and return new peers list related to torrent
     const peers = await this.updateAndGetPeers(user, request);
     await this.updateUserInformation(user, request);
 
+    // Return Bencode streamableFile to torrent client
     return new StreamableFile(
       Bencode.encode({
         interval: Number(env.INTERVAL),
@@ -88,11 +101,9 @@ export class AnnouncerService {
     user: User,
     request: Request,
   ): Promise<Peer[]> {
-    console.log(request.query);
-    const hashBuffer = Buffer.from(
-      (request.query.info_hash as string) || '',
-      'binary',
-    );
+    const hash: string = isHex(request.query.info_hash as string)
+      ? (request.query.info_hash as string)
+      : (getInfoHashHexFromUrl(request.originalUrl) ?? '');
     await this.peerService.addPeerOrUpdate(
       {
         ip: request.headers?.host?.substring(
@@ -100,10 +111,10 @@ export class AnnouncerService {
           request.headers.host.indexOf(':'),
         ),
         port: Number.parseInt(request.query.port as string),
-        hash: hashBuffer.toString('hex'),
+        hash: hash,
       },
       user,
     );
-    return await this.peerService.getPeersFromHash(hashBuffer.toString('hex'));
+    return await this.peerService.getPeersFromHash(hash);
   }
 }
