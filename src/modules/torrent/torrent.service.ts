@@ -12,6 +12,7 @@ import { kebabCase } from 'lodash';
 import { UserRequest } from '../user/user.entity';
 import { SubcategoryService } from '../subcategory/subcategory.service';
 import { LanguageService } from '../language/language.service';
+import { PeerService } from '../peer/peer.service';
 import { writeFileSync } from 'fs';
 import { randomBytes } from 'crypto';
 import { readFileSync } from 'fs';
@@ -26,6 +27,7 @@ export class TorrentService {
     private readonly torrentRepository: Repository<Torrent>,
     private readonly subcategoryService: SubcategoryService,
     private readonly languageService: LanguageService,
+    private readonly peerService: PeerService,
   ) {}
 
   /**
@@ -59,7 +61,10 @@ export class TorrentService {
       where: { hash: infoHash },
     });
 
-    if (torrent) throw new NotAcceptableException('Torrent already exists');
+    if (torrent) {
+      throw new NotAcceptableException('Torrent already exists');
+    }
+
     const filename = `${randomBytes(16).toString('hex')}.torrent`;
     torrent = await this.torrentRepository.save(
       this.torrentRepository.create({
@@ -94,7 +99,7 @@ export class TorrentService {
    * @returns {Torrent[]}
    */
   async getLastTorrents(): Promise<Torrent[]> {
-    return await this.torrentRepository.find({
+    let torrents: Torrent[] = await this.torrentRepository.find({
       order: { createdAt: 'DESC' },
       take: 20,
       relations: ['subcategory', 'user'],
@@ -108,6 +113,13 @@ export class TorrentService {
         'subcategory',
       ],
     });
+    torrents = await Promise.all(
+      torrents.map(async (torrent) => ({
+        ...torrent,
+        seeders: (await this.peerService.getPeersFromHash(torrent.hash)).length,
+      })),
+    );
+    return torrents;
   }
 
   /**
@@ -115,7 +127,7 @@ export class TorrentService {
    * @returns {Torrent[]}
    */
   async getBestTorrents(): Promise<Torrent[]> {
-    return await this.torrentRepository.find({
+    let torrents: Torrent[] = await this.torrentRepository.find({
       order: { completed: 'DESC' },
       take: 20,
       relations: ['subcategory', 'user'],
@@ -129,6 +141,13 @@ export class TorrentService {
         'subcategory',
       ],
     });
+    torrents = await Promise.all(
+      torrents.map(async (torrent) => ({
+        ...torrent,
+        seeders: (await this.peerService.getPeersFromHash(torrent.hash)).length,
+      })),
+    );
+    return torrents;
   }
 
   /**
@@ -148,12 +167,15 @@ export class TorrentService {
       readFileSync(`${process.env.FILE_LOCATION}${torrent?.filename}`),
     );
 
-    if (torrentFile.announce && torrentFile.announce.length > 0) {
-      torrentFile.announce[0] = `${process.env.TRACKER_ADDRESS}/announce/${userRequest.user.passkey}`;
+    if (torrentFile.announce) {
+      torrentFile.announce.push(
+        `${process.env.TRACKER_ADDRESS}/announce/${userRequest.user.passkey}`,
+      );
       torrentFile['announce-list'] = [
         [`${process.env.TRACKER_ADDRESS}/announce/${userRequest.user.passkey}`],
       ];
     }
+
     torrentFile.createdBy = 'Kaskad Engine';
     return new StreamableFile(Bencode.encode(torrentFile), {
       disposition: `attachment; filename="${torrent.name}".torrent`,

@@ -6,6 +6,7 @@ import { TorrentService } from './torrent.service';
 import { AuthModule } from '../auth/auth.module';
 import { SubcategoryModule } from '../subcategory/subcategory.module';
 import { LanguageModule } from '../language/language.module';
+import { PeerModule } from '../peer/peer.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { LanguageModule } from '../language/language.module';
     AuthModule,
     SubcategoryModule,
     LanguageModule,
+    PeerModule,
   ],
   controllers: [TorrentController],
   providers: [TorrentService],

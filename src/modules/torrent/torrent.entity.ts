@@ -39,7 +39,7 @@ export class Torrent {
   @Column({ type: String })
   hash: string;
 
-  @Column({ type: Number })
+  @Column({ type: 'bigint' })
   size: number;
 
   @Column({ type: Number })
