@@ -5,6 +5,12 @@ import type { Request } from 'express';
 export class AnnouncerController {
   constructor(private readonly announceService: AnnouncerService) {}
 
+  /**
+   * Respond to announces from torrent clients
+   * @param request {Request}
+   * @param passkey {string}
+   * @returns {StreamableFile}
+   */
   @Get(':passkey')
   announce(
     @Req() request: Request,

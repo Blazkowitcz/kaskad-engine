@@ -22,6 +22,7 @@ export class AnnouncerService {
    * Respond to announces from torrent clients
    * @param request {Request}
    * @param passkey {string}
+   * @returns {StreamableFile}
    */
   async announce(request: Request, passkey: string): Promise<StreamableFile> {
     // Get hash to hex format
@@ -44,6 +45,9 @@ export class AnnouncerService {
       );
     }
 
+    /**
+     * TODO : Add the possibility to remove the ratio requirement
+     */
     if (
       user.getRatio() < Number(env.MIN_RATIO) &&
       !!env.FULL_FREELEECH &&
@@ -79,7 +83,7 @@ export class AnnouncerService {
    * Update downloaded and uploaded value for the current user
    * @param user {User}
    * @param request {Request}
-   * @private
+   * @returns {User}
    */
   private async updateUserInformation(
     user: User,
