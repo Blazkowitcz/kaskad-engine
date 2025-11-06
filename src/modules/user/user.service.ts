@@ -12,6 +12,7 @@ export class UserService {
 
   /**
    * Add new user
+   * TODO : Add response translation to i18n
    * @param dto {AddUserDto}
    * @returns {Boolean}
    */
@@ -48,9 +49,10 @@ export class UserService {
   /**
    * Get user by its passkey
    * @param passkey {String}
+   * @returns {User}
    */
-  async getUserByPasskey(passkey: string) {
-    return await this.userRepository.findOne({ where: { passkey } });
+  async getUserByPasskey(passkey: string): Promise<User> {
+    return await this.userRepository.findOneOrFail({ where: { passkey } });
   }
 
   /**
