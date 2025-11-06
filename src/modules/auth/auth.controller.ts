@@ -10,12 +10,19 @@ export class AuthController {
   /**
    * Sign up new user
    * @param user {AddUserDto}
+   * @returns {boolean}
    */
   @Post('signup')
   async signup(@Body() user: AddUserDto): Promise<boolean> {
     return this.authService.signup(user);
   }
 
+  /**
+   * Sign in user
+   * @param res {Response}
+   * @param user {AddUserDto}
+   * @returns {object}
+   */
   @Post('signin')
   async signin(
     @Res() res: Response,
@@ -31,6 +38,13 @@ export class AuthController {
     return res.status(200).json({ connected: true });
   }
 
+  /**
+   * Check if user is connected
+   * TODO : Add token check to really validate if user is still connected
+   * @param res {Response}
+   * @param request {Request}
+   * @returns {object}
+   */
   @Get('check')
   check(@Res() res: Response, @Req() request: Request) {
     return res.status(200).json({ connected: true });
