@@ -69,6 +69,9 @@ export class Torrent {
   languages: Language[];
 }
 
+/**
+ * Set every fields that a use can filter
+ */
 export interface TorrentQuery {
   name?: string;
   categories?: string;
@@ -77,6 +80,9 @@ export interface TorrentQuery {
   description?: string;
 }
 
+/**
+ * Add custom peers field that extends Torrent model
+ */
 export interface TorrentDetails extends Torrent {
   peers?: [];
 }

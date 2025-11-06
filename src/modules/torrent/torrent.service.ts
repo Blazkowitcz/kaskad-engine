@@ -19,6 +19,7 @@ import { readFileSync } from 'fs';
 import { Bencode } from 'bencode-ts';
 import * as process from 'node:process';
 import { EditTorrentDto } from './dtos/torrent-edit.dto';
+import { FIELDS, TRACKER } from '../../constants';
 
 @Injectable()
 export class TorrentService {
@@ -99,27 +100,22 @@ export class TorrentService {
    * @returns {Torrent[]}
    */
   async getLastTorrents(): Promise<Torrent[]> {
-    let torrents: Torrent[] = await this.torrentRepository.find({
+    const torrents: Torrent[] = await this.torrentRepository.find({
       order: { createdAt: 'DESC' },
       take: 20,
-      relations: ['subcategory', 'user'],
+      relations: [FIELDS.SUBCATEGORY, FIELDS.USER],
       select: [
-        'id',
-        'name',
-        'slug',
-        'createdAt',
-        'size',
-        'completed',
-        'subcategory',
+        FIELDS.ID,
+        FIELDS.NAME,
+        FIELDS.SLUG,
+        FIELDS.CREATED_AT,
+        FIELDS.SIZE,
+        FIELDS.COMPLETED,
+        FIELDS.SUBCATEGORY,
       ],
     });
-    torrents = await Promise.all(
-      torrents.map(async (torrent) => ({
-        ...torrent,
-        seeders: (await this.peerService.getPeersFromHash(torrent.hash)).length,
-      })),
-    );
-    return torrents;
+
+    return await this.addNumberOfSeeder(torrents);
   }
 
   /**
@@ -127,27 +123,22 @@ export class TorrentService {
    * @returns {Torrent[]}
    */
   async getBestTorrents(): Promise<Torrent[]> {
-    let torrents: Torrent[] = await this.torrentRepository.find({
+    const torrents: Torrent[] = await this.torrentRepository.find({
       order: { completed: 'DESC' },
       take: 20,
-      relations: ['subcategory', 'user'],
+      relations: [FIELDS.SUBCATEGORY, 'user'],
       select: [
-        'id',
-        'name',
-        'slug',
-        'createdAt',
-        'size',
-        'completed',
-        'subcategory',
+        FIELDS.ID,
+        FIELDS.NAME,
+        FIELDS.SLUG,
+        FIELDS.CREATED_AT,
+        FIELDS.SIZE,
+        FIELDS.COMPLETED,
+        FIELDS.SUBCATEGORY,
       ],
     });
-    torrents = await Promise.all(
-      torrents.map(async (torrent) => ({
-        ...torrent,
-        seeders: (await this.peerService.getPeersFromHash(torrent.hash)).length,
-      })),
-    );
-    return torrents;
+
+    return await this.addNumberOfSeeder(torrents);
   }
 
   /**
@@ -171,12 +162,12 @@ export class TorrentService {
       torrentFile.announce.push(
         `${process.env.TRACKER_ADDRESS}/announce/${userRequest.user.passkey}`,
       );
-      torrentFile['announce-list'] = [
+      torrentFile[TRACKER.ANNOUNCE_LIST] = [
         [`${process.env.TRACKER_ADDRESS}/announce/${userRequest.user.passkey}`],
       ];
     }
 
-    torrentFile.createdBy = 'Kaskad Engine';
+    torrentFile.createdBy = process.env.CREATED_BY;
     return new StreamableFile(Bencode.encode(torrentFile), {
       disposition: `attachment; filename="${torrent.name}".torrent`,
     });
@@ -194,24 +185,24 @@ export class TorrentService {
       string,
     ][]) {
       switch (key) {
-        case 'name':
-          search['name'] = ILike(`%${value}%`);
+        case FIELDS.NAME:
+          search[FIELDS.NAME] = ILike(`%${value}%`);
           break;
-        case 'description':
-          search['description'] = ILike(`%${value}%`);
+        case FIELDS.DESCRIPTION:
+          search[FIELDS.DESCRIPTION] = ILike(`%${value}%`);
           break;
-        case 'categories':
-          search['subcategory'] = {
+        case FIELDS.CATEGORIES:
+          search[FIELDS.SUBCATEGORY] = {
             category: { slug: In(value.split(',')) },
           };
           break;
-        case 'subcategories':
-          search['subcategory'] = {
+        case FIELDS.SUBCATEGORIES:
+          search[FIELDS.SUBCATEGORY] = {
             slug: In(value.split(',')),
           };
           break;
-        case 'author':
-          search['user'] = {
+        case FIELDS.AUTHOR:
+          search[FIELDS.USER] = {
             username: value,
           };
           break;
@@ -220,7 +211,11 @@ export class TorrentService {
 
     return await this.torrentRepository.find({
       where: search,
-      relations: ['subcategory', 'subcategory.category', 'user'],
+      relations: [
+        FIELDS.SUBCATEGORY,
+        `${FIELDS.SUBCATEGORY}.${FIELDS.CATEGORY}`,
+        FIELDS.USER,
+      ],
     });
   }
 
@@ -232,7 +227,12 @@ export class TorrentService {
   async getTorrentDetails(slug: string): Promise<TorrentDetails> {
     const torrent: Torrent | null = await this.torrentRepository.findOneOrFail({
       where: { slug: slug },
-      relations: ['subcategory', 'subcategory.category', 'user', 'languages'],
+      relations: [
+        FIELDS.SUBCATEGORY,
+        `${FIELDS.SUBCATEGORY}.${FIELDS.CATEGORY}`,
+        FIELDS.USER,
+        FIELDS.LANGUAGES,
+      ],
     });
     return { ...torrent, peers: [] };
   }
@@ -289,5 +289,20 @@ export class TorrentService {
     torrent.isFreeleech = !torrent.isFreeleech;
     await this.torrentRepository.save(torrent);
     return true;
+  }
+
+  /**
+   * Calculate number of seeders and add the value on each torrent
+   * @param torrents
+   * @returns {Torrent[]}
+   * @private
+   */
+  private async addNumberOfSeeder(torrents: Torrent[]): Promise<Torrent[]> {
+    return await Promise.all(
+      torrents.map(async (torrent) => ({
+        ...torrent,
+        seeders: (await this.peerService.getPeersFromHash(torrent.hash)).length,
+      })),
+    );
   }
 }
