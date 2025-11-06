@@ -36,6 +36,11 @@ export class LanguageService {
     return this.languageRepository.find();
   }
 
+  /**
+   * Get list of languages from slugs
+   * @param slugArray {string[]}
+   * @returns {Language[]}
+   */
   async getLanguagesFromSlugArray(slugArray: string[]): Promise<Language[]> {
     return this.languageRepository.findBy({ slug: In(slugArray) });
   }
