@@ -9,34 +9,34 @@ export const seedSubcategories = async (dataSource: DataSource) => {
 
   const subcategories = [
     {
-      name: 'Documentaires',
-      slug: 'documentaries',
-      icon: 'documentaries',
-      category: 'videos',
-    },
-    {
-      name: 'Emissions',
-      slug: 'emissions',
-      icon: 'people',
-      category: 'videos',
-    },
-    {
-      name: 'Films',
-      slug: 'films',
-      icon: 'people',
-      category: 'videos',
-    },
-    {
-      name: 'Linux',
-      slug: 'linux',
+      name: 'OS Linux',
+      slug: 'os-linux',
       icon: 'linux',
       category: 'system',
     },
     {
-      name: 'Windows',
-      slug: 'windows',
+      name: 'OS Windows',
+      slug: 'os-windows',
       icon: 'windows',
       category: 'system',
+    },
+    {
+      name: 'App Linux',
+      slug: 'app-linux',
+      icon: 'linux',
+      category: 'application',
+    },
+    {
+      name: 'App Windows',
+      slug: 'app-windows',
+      icon: 'windows',
+      category: 'application',
+    },
+    {
+      name: 'App OSX',
+      slug: 'app-osx',
+      icon: 'osx',
+      category: 'application',
     },
   ];
 
