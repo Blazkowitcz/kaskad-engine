@@ -19,6 +19,9 @@ export class SubcategoryService implements OnModuleInit {
     private readonly subcategoryRepository: Repository<Subcategory>,
   ) {}
 
+  /**
+   * Load all categories into cache on module init
+   */
   async onModuleInit() {
     this.subcategories = await this.subcategoryRepository.find({
       relations: [FIELDS.CATEGORY],
@@ -44,6 +47,10 @@ export class SubcategoryService implements OnModuleInit {
     return await this.subcategoryRepository.save(subcategory);
   }
 
+  /**
+   * Return all subcategories from cache
+   * @returns {Subcategory[]}
+   */
   getAllSubcategories(): Subcategory[] {
     return this.subcategories;
   }
