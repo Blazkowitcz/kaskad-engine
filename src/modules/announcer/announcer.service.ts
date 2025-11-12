@@ -28,7 +28,7 @@ export class AnnouncerService {
     // Get hash to hex format
     const hash: string = isHex(request.query.info_hash as string)
       ? (request.query.info_hash as string)
-      : (getInfoHashHexFromUrl(request.originalUrl) ?? '');
+      : getInfoHashHexFromUrl(request.originalUrl);
 
     // Get torrent from hash
     const torrent = await this.torrentService.getTorrentFromHash(hash);
