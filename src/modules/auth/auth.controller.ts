@@ -35,7 +35,7 @@ export class AuthController {
       secure: true,
       sameSite: 'none',
     });
-    return res.status(200).json({ connected: true });
+    return res.status(200).json({ connected: true, token });
   }
 
   /**
